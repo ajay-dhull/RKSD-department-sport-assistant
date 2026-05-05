@@ -1,0 +1,45 @@
+name: Keep Render Server Warm
+
+on:
+  schedule:
+    # Runs every 5 minutes (change to "*/3 * * * *" for every 3 minutes)
+    - cron: "*/5 * * * *"
+  workflow_dispatch: # Allows manual runs from the Actions tab
+
+jobs:
+  ping-server:
+    runs-on: ubuntu-latest
+    env:
+      HEALTH_URL: https://college-voice-assistance.onrender.com/api/health
+      RETRIES: 3
+      RETRY_DELAY_SECONDS: 5
+
+    steps:
+      - name: Ping Render Server Health Route (with retries + body)
+        run: |
+          echo "Pinging $HEALTH_URL"
+          ATTEMPT=0
+          while [ $ATTEMPT -lt "$RETRIES" ]; do
+            ATTEMPT=$((ATTEMPT+1))
+            echo ""
+            echo "Attempt #$ATTEMPT of $RETRIES..."
+            # Save body to temp file and capture HTTP status code
+            STATUS=$(curl -s -w "%{http_code}" -o /tmp/health_body.txt "$HEALTH_URL" || echo "000")
+            echo "HTTP STATUS: $STATUS"
+            echo "BODY:"
+            cat /tmp/health_body.txt || true
+
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅ Health check 200 OK"
+              exit 0
+            else
+              echo "❌ Health check failed (status $STATUS)"
+              if [ $ATTEMPT -lt "$RETRIES" ]; then
+                echo "Waiting $RETRY_DELAY_SECONDS seconds before retry..."
+                sleep $RETRY_DELAY_SECONDS
+              fi
+            fi
+          done
+
+          echo "⛔ All $RETRIES attempts failed. Exiting with failure."
+          exit 1

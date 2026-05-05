@@ -1,0 +1,153 @@
+/**
+ * TTS Caching System
+ * Hash-based caching for repeated TTS requests (huge speed boost)
+ */
+
+import crypto from 'crypto';
+
+interface CacheEntry {
+  audioBuffer: Buffer;
+  contentType: string;
+  provider: string;
+  chunksCount: number;
+  timestamp: number;
+}
+
+// In-memory cache (can be replaced with Redis for production)
+const ttsCache = new Map<string, CacheEntry>();
+
+// Cache configuration
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_CACHE_SIZE = 1000; // Maximum number of cached entries
+
+/**
+ * Generate a cache key from normalized text and voice settings
+ */
+export function generateCacheKey(normalizedText: string, voiceId: string, settings: any): string {
+  const cacheData = {
+    text: normalizedText,
+    voiceId,
+    modelId: settings.modelId || "eleven_english_v2",
+    stability: settings.stability || 0.9,
+    similarityBoost: settings.similarityBoost || 0.85
+  };
+  
+  const hash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(cacheData))
+    .digest('hex');
+    
+  console.log('TTS Cache: Generated key for text:', normalizedText.substring(0, 50) + '...', 'Hash:', hash.substring(0, 8));
+  return hash;
+}
+
+/**
+ * Get cached TTS audio if available
+ */
+export function getCachedTTS(cacheKey: string): CacheEntry | null {
+  const entry = ttsCache.get(cacheKey);
+  
+  if (!entry) {
+    console.log('TTS Cache: MISS for key:', cacheKey.substring(0, 8));
+    return null;
+  }
+  
+  // Check if entry has expired
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    console.log('TTS Cache: EXPIRED for key:', cacheKey.substring(0, 8));
+    ttsCache.delete(cacheKey);
+    return null;
+  }
+  
+  console.log('TTS Cache: HIT for key:', cacheKey.substring(0, 8), 
+              'Audio size:', entry.audioBuffer.length, 'bytes',
+              'Provider:', entry.provider,
+              'Age:', Math.round((Date.now() - entry.timestamp) / 1000), 'seconds');
+  
+  return entry;
+}
+
+/**
+ * Store TTS audio in cache
+ */
+export function setCachedTTS(
+  cacheKey: string, 
+  audioBuffer: Buffer, 
+  contentType: string, 
+  provider: string,
+  chunksCount: number
+): void {
+  // Clean up old entries if cache is getting too large
+  if (ttsCache.size >= MAX_CACHE_SIZE) {
+    cleanupOldEntries();
+  }
+  
+  const entry: CacheEntry = {
+    audioBuffer,
+    contentType,
+    provider,
+    chunksCount,
+    timestamp: Date.now()
+  };
+  
+  ttsCache.set(cacheKey, entry);
+  
+  console.log('TTS Cache: STORED key:', cacheKey.substring(0, 8),
+              'Audio size:', audioBuffer.length, 'bytes',
+              'Provider:', provider,
+              'Chunks:', chunksCount,
+              'Total cache entries:', ttsCache.size);
+}
+
+/**
+ * Clean up expired entries and oldest entries if cache is full
+ */
+function cleanupOldEntries(): void {
+  console.log('TTS Cache: Cleanup started, current size:', ttsCache.size);
+  
+  const now = Date.now();
+  let removedCount = 0;
+  
+  // Remove expired entries first
+  for (const [key, entry] of Array.from(ttsCache.entries())) {
+    if (now - entry.timestamp > CACHE_TTL_MS) {
+      ttsCache.delete(key);
+      removedCount++;
+    }
+  }
+  
+  // If still too many entries, remove oldest ones
+  if (ttsCache.size >= MAX_CACHE_SIZE) {
+    const sortedEntries = Array.from(ttsCache.entries())
+      .sort(([,a], [,b]) => a.timestamp - b.timestamp);
+    
+    const entriesToRemove = sortedEntries.slice(0, Math.floor(MAX_CACHE_SIZE * 0.2)); // Remove 20%
+    
+    entriesToRemove.forEach(([key]) => {
+      ttsCache.delete(key);
+      removedCount++;
+    });
+  }
+  
+  console.log('TTS Cache: Cleanup complete, removed:', removedCount, 'entries, new size:', ttsCache.size);
+}
+
+/**
+ * Get cache statistics
+ */
+export function getCacheStats() {
+  return {
+    size: ttsCache.size,
+    maxSize: MAX_CACHE_SIZE,
+    ttlHours: CACHE_TTL_MS / (60 * 60 * 1000)
+  };
+}
+
+/**
+ * Clear entire cache (for testing/debugging)
+ */
+export function clearCache(): void {
+  const oldSize = ttsCache.size;
+  ttsCache.clear();
+  console.log('TTS Cache: Cleared all entries, removed:', oldSize, 'entries');
+}

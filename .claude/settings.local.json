@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(where pip:*)",
+      "Bash(pip --version)",
+      "Bash(C:/Users/lw/AppData/Local/Programs/Python/Python312/Scripts/pip.exe install:*)",
+      "Bash(C:/Users/lw/AppData/Local/Programs/Python/Python312/python.exe -c ':*)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(C:/Users/lw/AppData/Local/Programs/Python/Python312/python.exe -m pip install pdfplumber)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(\"/c/Users/lw/AppData/Local/Programs/Python/Python312/python.exe\" --version)",
+      "Bash(py --version)",
+      "Bash(py -m pip install pdfplumber)",
+      "Bash(py:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(\"/c/Users/lw/AppData/Local/pnpm/pnpm.CMD\" exec:*)",
+      "Bash(\"/c/Program Files/nodejs/node\" \"/c/Users/lw/AppData/Local/pnpm/pnpm.CMD\" exec tsc --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/node\" \"/c/Users/lw/AppData/Local/pnpm/pnpm\" exec tsc --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/node\" node_modules/.bin/tsc --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/node\" \"/c/Users/lw/Downloads/college-assistant/college-assistant/node_modules/typescript/bin/tsc\" --noEmit)"
+    ]
+  }
+}
