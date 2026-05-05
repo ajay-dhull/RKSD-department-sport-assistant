@@ -26,6 +26,7 @@ Stack: Node/Express + React/Vite + Supabase + TailwindCSS + shadcn/ui + Groq (mu
 | Public Updates Board `/updates` | ✅ Working |
 | Email subscriptions | ✅ Built (needs EMAIL env vars) |
 | HOD permanent entry | ✅ Dr. Gurdeep Bhola — edit only, delete blocked (UI + server) |
+| Render deployment | ✅ Live at https://rksd-department-sport-assistant.onrender.com |
 
 ---
 
@@ -39,8 +40,7 @@ Stack: Node/Express + React/Vite + Supabase + TailwindCSS + shadcn/ui + Groq (mu
 | Create storage bucket | Supabase → Storage → New Bucket → Name: `updates-files` → Public: ON |
 | Set email env vars | `EMAIL_USER`, `EMAIL_PASS` (Gmail App Password), `EMAIL_FROM_NAME` in `.env` |
 | Add achievements data | Admin Panel → Achievements → add medals/trophies (AI tab shows empty until this is done) |
-| Deploy to Render.com | Connect GitHub repo, set env vars, Build: `npm install && npm run build`, Start: `npm start` |
-| UptimeRobot ping | uptimerobot.com → ping Render URL every 5 min (prevents sleep) |
+| UptimeRobot ping | uptimerobot.com → ping `https://rksd-department-sport-assistant.onrender.com/api/health` every 5 min |
 
 ### HOD Insert SQL (run once in Supabase):
 ```sql
@@ -152,6 +152,16 @@ ON CONFLICT (employee_id) DO UPDATE SET full_name = 'Dr. Gurdeep Bhola', role = 
 ### 42P01 Error
 - All Supabase routes handle `error.code === '42P01'` → return empty data, not 500
 - Fix: run `setup.sql` in Supabase
+
+### Render Deployment Notes
+- **Live URL:** https://rksd-department-sport-assistant.onrender.com
+- **Build Command:** `npm install --legacy-peer-deps && npm run build`
+- **Start Command:** `npm start`
+- **CORS:** `origin: true` (all origins allowed — public app)
+- **Static files:** `serveStatic` uses `process.cwd()/dist/public` (NOT `import.meta.dirname` — incompatible with older Node)
+- **Node version:** `.node-version` file set to `20.11.0`
+- **Free tier:** App sleeps after 15 min inactivity — set UptimeRobot ping on `/api/health`
+- **GitHub repo:** https://github.com/ajay-dhull/RKSD-department-sport-assistant
 
 ### AI Token Overflow Prevention
 - NEVER make DB fetches unconditional — always wrap in `if (fetchStrategy.fetchXxx)`
