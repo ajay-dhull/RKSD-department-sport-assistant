@@ -11,3 +11,4 @@ vite.config.ts.*
 attached_assets/
 *.mp4
 *.zip
+.claude/settings.local.json
