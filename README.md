@@ -22,6 +22,10 @@
   <img src="https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=groq&logoColor=white">
 </p>
 
+<p align="center">
+  <img src="screenshots/chat.jpg" alt="The assistant answering a Hinglish question about the department head and its courses" width="100%">
+</p>
+
 ---
 
 ## What this is
@@ -36,6 +40,29 @@ Built for the **Physical Education Department at RKSD College**, and running in 
 
 > **Live:** https://rksd-department-sport-assistant.onrender.com
 > *(free Render tier — the first request after idle can take ~30s to wake the server)*
+
+---
+
+## 📸 Screens
+
+<table>
+  <tr>
+    <td width="50%"><img src="screenshots/home.jpg" alt="Assistant home screen with quick-topic cards" width="100%"></td>
+    <td width="50%"><img src="screenshots/updates-board.jpg" alt="Public updates board" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Assistant</b> — quick topics, voice or text input</td>
+    <td align="center"><b>Updates board</b> — public notices at <code>/updates</code></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/chat.jpg" alt="Chat answering a Hinglish question" width="100%"></td>
+    <td><img src="screenshots/admin-login.jpg" alt="Admin panel login" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Hinglish Q&A</b> — answered from the college database</td>
+    <td align="center"><b>Admin panel</b> — password-gated staff access</td>
+  </tr>
+</table>
 
 ---
 
