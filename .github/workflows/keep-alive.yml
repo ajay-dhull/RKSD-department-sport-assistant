@@ -10,7 +10,7 @@ jobs:
   ping-server:
     runs-on: ubuntu-latest
     env:
-      HEALTH_URL: https://college-voice-assistance.onrender.com/api/health
+      HEALTH_URL: https://rksd-department-sport-assistant.onrender.com/api/health
       RETRIES: 3
       RETRY_DELAY_SECONDS: 5
 
